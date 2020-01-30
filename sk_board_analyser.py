@@ -8,8 +8,10 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 
 CORNER_TOLERANCE = 1e-9
-SK_CORNER_X_OFFSET_PIXELS = 8  # make fractional later
-SK_CORNER_Y_OFFSET_PIXELS = 8  # make fractional later
+BR_X_PIXEL_SHIFT = 10  # make fractional later
+BR_Y_PIXEL_SHIFT = 10  # make fractional later
+UNIFORM_X_PIXEL_SHIFT = 5
+UNIFORM_Y_PIXEL_SHIFT = 2
 
 
 class SKBoardAnayliser:
@@ -44,7 +46,7 @@ class SKBoardAnayliser:
         br_err, br_pos = frame_analyser.contains_patch(self._patch_set.board_br_corner)
         if br_err > CORNER_TOLERANCE:
             return None
-        br_pos = (br_pos[0] + 10, br_pos[1] + 10)
+        br_pos = (br_pos[0] + BR_X_PIXEL_SHIFT, br_pos[1] + BR_Y_PIXEL_SHIFT)
         return tl_pos, br_pos
 
     @staticmethod
@@ -52,8 +54,8 @@ class SKBoardAnayliser:
         tl_corner, br_corner = board_corners
         square_size = (int(round((br_corner[0] - tl_corner[0])) / 8),
                        int(round((br_corner[1] - tl_corner[1]) / 8)))
-        x_edges = np.arange(tl_corner[0], br_corner[0] + square_size[0] // 2, square_size[0]) - 5
-        y_edges = np.arange(tl_corner[1], br_corner[1] + square_size[1] // 2, square_size[1]) - 2
+        x_edges = np.arange(tl_corner[0], br_corner[0] + square_size[0] // 2, square_size[0]) - UNIFORM_X_PIXEL_SHIFT
+        y_edges = np.arange(tl_corner[1], br_corner[1] + square_size[1] // 2, square_size[1]) - UNIFORM_Y_PIXEL_SHIFT
         x_centers = x_edges[:-1] + square_size[0] // 2
         y_centers = y_edges[:-1] + square_size[1] // 2
         return np.meshgrid(x_centers, y_centers)
@@ -68,24 +70,10 @@ class SKBoardAnayliser:
         )
 
     def board_from_image(self, sk_image: np.ndarray):
-        centers_image = sk_image.copy()
-        count = 0
-        for x, y in zip(self._center_x_coordinates.flatten(), self._center_y_coordinates.flatten()):
-            count += 1
-            centers_image[y, x, :] = 255
-        plt.imshow(centers_image[:, :, ::-1])
-        cv.imwrite('test.png', centers_image)
-        plt.show()
-
         test_image_centers = sk_image[self._center_y_coordinates, self._center_x_coordinates]
-        plt.imshow(test_image_centers[:, :, ::-1])
-        plt.show()
         test_image_centers[test_image_centers == self._base_image_center_mask] = 0
         current_shape = test_image_centers.shape
-        plt.imshow(test_image_centers[:, :, ::-1])
-        plt.show()
         test_image_centers = test_image_centers.reshape(current_shape[0] * current_shape[1], current_shape[2])
-
         color_diff = test_image_centers[self._color_x_idx] - self._reference_color_array[self._color_y_idx]
         closest = np.argmin(norm(color_diff, axis=2), axis=0)
         return closest.reshape(self._board_dims)
