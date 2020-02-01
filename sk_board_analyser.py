@@ -105,4 +105,4 @@ class SKBoardAnaylzer:
         test_image_centers = test_image_centers.reshape(current_shape[0] * current_shape[1], current_shape[2])
         color_diff = test_image_centers[self._color_x_idx] - self._reference_color_array[self._color_y_idx]
         closest = np.argmin(norm(color_diff, axis=2), axis=0)
-        return closest.reshape(self.board_dims), (cursor_location_y, cursor_location_x)
+        return closest.reshape(self.board_dims), (int(cursor_location_y), int(cursor_location_x))
