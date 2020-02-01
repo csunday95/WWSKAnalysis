@@ -9,6 +9,7 @@ verify_ssl = true
 opencv-python = "*"
 matplotlib = "*"
 mss = "*"
+scikit-image = "*"
 
 [requires]
 python_version = "3.6"
