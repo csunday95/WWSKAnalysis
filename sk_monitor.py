@@ -5,6 +5,7 @@ from threading import Thread
 import time
 import numpy as np
 from sk_board_analyser import SKBoardAnaylzer
+from sk_board import SKBoard
 
 
 class SKMonitor:
@@ -27,7 +28,8 @@ class SKMonitor:
         self._monitoring = False
         self._monitor_thread = None  # type: Optional[Thread]
         self._waiting_for_start = True
-        self._last_board = None
+        self._board = SKBoard(self._board_analyser.board_dims)
+        self._last_cursor_loc = None  # type: Optional[Tuple[int, int]]
 
     def start_monitor(self):
         self._monitoring = True
@@ -36,24 +38,27 @@ class SKMonitor:
 
     def stop_monitor(self):
         self._monitoring = False
-        self._last_board = None
+        self._board = None
         if self._monitor_thread is not None:
             self._monitor_thread.join()
     
     def get_last_board(self):
-        return self._last_board
+        return self._board
 
     def reset_game_start(self):
         self._waiting_for_start = True
 
     def _process_frame(self, frame: np.ndarray):
+        start = time.perf_counter()
         if self._waiting_for_start:
             if self._board_analyser.is_game_start_frame(frame):
                 self._waiting_for_start = False
                 self._board_analyser.initialize_coordinates(frame)
             else:
                 return
-        self._last_board = self._board_analyser.board_from_image(frame)
+        self._board.board, self._board.cursor_position = self._board_analyser.board_from_image(frame)
+        print(time.perf_counter() - start)
+        print(self._board)
 
     def _monitor_callback(self):
         sleep_time = self._min_fps_time / 10

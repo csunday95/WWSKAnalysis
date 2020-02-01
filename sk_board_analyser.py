@@ -5,17 +5,8 @@ from numpy.linalg import norm
 from frame_comparison_analyser import FrameComparisonAnalyser
 from sk_board import SKBoard, SKSpaces
 import matplotlib.pyplot as plt
-import cv2 as cv
 
 CORNER_TOLERANCE = 1e-9
-# BR_X_PIXEL_SHIFT = 12  # make fractional later
-# BR_Y_PIXEL_SHIFT = 15  # make fractional later
-# UNIFORM_X_PIXEL_SHIFT = 5
-# UNIFORM_Y_PIXEL_SHIFT = 6
-# TR_X_PIXEL_SHIFT = 8
-# TR_Y_PIXEL_SHIFT = 1
-# BR_X_PIXEL_SHIFT = 15  # make fractional later
-# BR_Y_PIXEL_SHIFT = 1  # make fractional later
 TR_X_PIXEL_SHIFT = -4
 TR_Y_PIXEL_SHIFT = -3
 BR_X_PIXEL_SHIFT = 1  # make fractional later
@@ -46,7 +37,7 @@ class SKBoardAnaylzer:
         self._base_image_center_mask = None  # type: Optional[np.ndarray]
         self._base_image_center_mask_tl = None  # type: Optional[np.ndarray]
         self._color_x_idx, self._color_y_idx = None, None
-        self._board_dims = board_dims
+        self.board_dims = board_dims
         self._patch_set = patch_set
 
     def _find_board_corners(self):
@@ -65,8 +56,8 @@ class SKBoardAnaylzer:
         tl_corner, br_corner = board_corners
         square_size = ((br_corner[0] - tl_corner[0]) / 8,
                        (br_corner[1] - tl_corner[1]) / 8)
-        x_edges = np.linspace(tl_corner[0], br_corner[0], self._board_dims[0] + 1)
-        y_edges = np.linspace(tl_corner[1], br_corner[1], self._board_dims[1] + 1)
+        x_edges = np.linspace(tl_corner[0], br_corner[0], self.board_dims[0] + 1)
+        y_edges = np.linspace(tl_corner[1], br_corner[1], self.board_dims[1] + 1)
         x_centers = np.round(x_edges[:-1] + square_size[0] / 2).astype(int)
         y_centers = np.round(y_edges[:-1] + square_size[1] / 2).astype(int)
         return np.meshgrid(x_centers, y_centers)
@@ -83,7 +74,7 @@ class SKBoardAnaylzer:
         self._center_x_coordinates, self._center_y_coordinates = self._compute_board_centers(self._corner_positions)
         self._base_image_center_mask = self._base_image[self._center_y_coordinates, self._center_x_coordinates]
         self._color_x_idx, self._color_y_idx = np.meshgrid(
-            np.arange(self._board_dims[0] * self._board_dims[1]),
+            np.arange(self.board_dims[0] * self.board_dims[1]),
             np.arange(len(self._reference_color_map))
         )
     
@@ -108,11 +99,10 @@ class SKBoardAnaylzer:
             test_image_centers[cursor_location_y, cursor_location_x] = 0
         else:
             test_image_centers[cursor_location_y, cursor_location_x] = adjusted_center_color
-
-        plt.imshow(test_image_centers[:, :, ::-1])
-        plt.show()
+        # plt.imshow(test_image_centers[:, :, ::-1])
+        # plt.show()
         current_shape = test_image_centers.shape
         test_image_centers = test_image_centers.reshape(current_shape[0] * current_shape[1], current_shape[2])
         color_diff = test_image_centers[self._color_x_idx] - self._reference_color_array[self._color_y_idx]
         closest = np.argmin(norm(color_diff, axis=2), axis=0)
-        return closest.reshape(self._board_dims)
+        return closest.reshape(self.board_dims), (cursor_location_y, cursor_location_x)

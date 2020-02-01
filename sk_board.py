@@ -13,9 +13,23 @@ class SKSpaces(IntEnum):
 
 
 class SKBoard:
+    SpaceToSymbol = {
+        SKSpaces.Empty: ' ',
+        SKSpaces.Miss: 'X',
+        SKSpaces.Ship: 'S',
+        SKSpaces.HitShip: 'H',
+        SKSpaces.Cursor: 'C'
+    }
+
     def __init__(self, board_dims: Tuple[int, int]):
         self.board_dims = board_dims
         self.board = np.zeros(board_dims, dtype=int)
+        self.cursor_position = (0, 0)
 
     def __str__(self):
-        return ''
+        s = ''
+        for row in self.board:
+            s += '| '
+            s += ' | '.join([self.SpaceToSymbol[SKSpaces(s)] for s in row])
+            s += ' |\n'
+        return s
