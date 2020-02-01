@@ -49,7 +49,6 @@ class SKMonitor:
         self._waiting_for_start = True
 
     def _process_frame(self, frame: np.ndarray):
-        # start = time.perf_counter()
         if self._waiting_for_start:
             if self._board_analyser.is_game_start_frame(frame):
                 self._waiting_for_start = False
@@ -57,8 +56,6 @@ class SKMonitor:
             else:
                 return
         self._board.board, self._board.cursor_position = self._board_analyser.board_from_image(frame)
-        # print(time.perf_counter() - start)
-        # print(self._board)
 
     def _monitor_callback(self):
         sleep_time = self._min_fps_time / 10

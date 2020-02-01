@@ -38,7 +38,7 @@ class SKBoard:
     def as_json(self):
         return json.dumps({
             'board': self.board.tolist(),
-            'cursor': self.cursor_position
+            'cursor': (self.cursor_position[1], self.board_dims[1] - self.cursor_position[0] - 1)
         })
 
     def save_board_to_file(self, file_path: str):
