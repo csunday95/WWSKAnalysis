@@ -28,7 +28,8 @@ class SKBoardAnaylzer:
         self._base_image = None
         self._background_board_image = None
         self._reference_color_map = reference_color_map
-        self._cursor_color = dict(self._reference_color_map)[SKSpaces.Cursor][::-1]
+        self._reference_color_dict = dict(reference_color_map)
+        self._cursor_color = self._reference_color_dict[SKSpaces.Cursor][::-1]
         self._reference_color_array = np.array([np.array(c[::-1]) for _, c in self._reference_color_map])
         self._reference_color_names = [name for name, _ in self._reference_color_map]
         self._corner_positions = None  # type: Optional[Tuple[Tuple[int, int], Tuple[int, int]]]

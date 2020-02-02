@@ -52,7 +52,8 @@ class SKMonitorServer:
         if cmd_typ == 'board':
             return self._monitor.get_last_board().as_json()
         elif cmd_typ == 'reset':
-            pass
+            self._monitor.reset_game_start()
+            return json.dumps(True)
 
     def handle_clients_callback(self):
         while self._serving:

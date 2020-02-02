@@ -47,6 +47,7 @@ class SKMonitor:
 
     def reset_game_start(self):
         self._waiting_for_start = True
+        self._board.cursor_position = (-1, -1)
 
     def _process_frame(self, frame: np.ndarray):
         if self._waiting_for_start:
